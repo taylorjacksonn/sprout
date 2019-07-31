@@ -5,28 +5,8 @@ import sys
 import numpy as np
 import random
 import stem_detect
-#import matplotlib.plt as plt
-
-def pad_im(im, new_size):
-    """
-    #from https://stackoverflow.com/questions/11142851/
-    #adding-borders-to-an-image-using-python/11143078
-    """
-    old_size = im.size
-
-    new_im = Image.new("RGBA", new_size)   
-    region = [int(new_size[0] * .5), int(new_size[1] * .5), 
-                    int(new_size[0]*.6), int(new_size[1]*.6)]
-    reg_size = (region[2] - region[0], region[3] - region[1])
-    im = im.resize(reg_size, Image.ANTIALIAS)
-
-    new_im.paste(im, box=region)
-   
-    return new_im
-
 
 def move_im_to_point(im, point, og_size, fl_size=.05):
-    #x,y = point.ravel()
     x, y = point
     x_size = og_size[0]
     y_size = og_size[1]
@@ -96,39 +76,31 @@ def get_placements(img, num):
     return corners
 
 def main():
-    """
-    fl = Image.open(sys.argv[1])
-    pl = Image.open(sys.argv[2])
-    pl_np = np.array(pl)
-    pl = pl.convert('RGBA')
-    """
     rand_gen = random.Random()
     fl = cv2.imread(sys.argv[1])
     pl = cv2.imread(sys.argv[2])
-    fl_pl, extremes, mask_im  = stem_detect.get_stem(fl, pl)
+    extremes, mask_im  = stem_detect.get_stem(fl, pl) #TODO
     fl[np.where((fl == [0,0,0]).all(axis=2))] = [255,255,255]
     corners = get_placements(pl, 10000)
+
     clumps = False
     if len(sys.argv) >= 5:
         clumps = bool(int(sys.argv[4]))
     if len(sys.argv) == 7:
-        flower_size = (int(sys.argv[5]), int(sys.argv[6]))
+        flower_size = (float(sys.argv[5]), float(sys.argv[6]))
     else:
         flower_size = (.07, .15)
     
     fl = cv2.cvtColor(fl.astype(np.uint8), cv2.COLOR_BGRA2RGBA)
     fl = Image.fromarray(fl)
-
     pl = cv2.cvtColor(pl, cv2.COLOR_BGR2RGB)
     pl = Image.fromarray(pl)
     
-    print(len(corners))
     corners = stem_detect.check_close(corners, (extremes[0],
             extremes[1]), (extremes[2], extremes[3])) 
     corners = check_mask(corners, mask_im)
     corners = check_overlap(corners, pl.size, flower_size[1],
                     clumps=clumps)
-    print(len(corners))
 
     pl = pl.convert('RGBA')
     datas = fl.getdata()
