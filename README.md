@@ -3,7 +3,7 @@ Sprout is a computational photography project. Make your plants bloom.
 to run activate a virtual environment
 -clone repository
 -activate a python virtual environment
--pip install requirements.txt
+-pip install -r requirements.txt
 -python impose_flowers <flower_file_name> <plant_file_name> <max_num_flowers> <optional_clump> <optional_flower_min_size> <optional_flower_max_size>
 
 clump is an alternate imposing where it just puts one clump of flower on the plant. This is turned on by putting 1 in the clump spot and 
